@@ -210,22 +210,32 @@
     </p>
   </xsl:template>
 
-  <!-- Citation output for in-text citation(s). -->
+  <!--
+    Citation output for in-text citation(s).
+
+    IMPORTANT COMPATIBILITY DECISION:
+    In Word, citation grouping/punctuation around the full citation cluster can be managed by the
+    citation engine itself. If this template injects parentheses directly, grouped citations may
+    become duplicated like: (Author, 2020)(Other, 2021).
+
+    Therefore this style renders only the internal citation text (author, year and separators),
+    and leaves outer punctuation to Word.
+  -->
   <xsl:template match="b:Citation">
     <html xmlns="http://www.w3.org/TR/REC-html40">
       <body>
-        <xsl:text>(</xsl:text>
-        <xsl:for-each select="b:Source">
-          <xsl:if test="position() &gt; 1">
-            <xsl:text>; </xsl:text>
-          </xsl:if>
-          <xsl:call-template name="render-citation-author-short"/>
-          <xsl:text>, </xsl:text>
-          <xsl:call-template name="render-year-short"/>
-        </xsl:for-each>
-        <xsl:text>)</xsl:text>
+        <xsl:apply-templates select="b:Source" mode="citation-entry"/>
       </body>
     </html>
+  </xsl:template>
+
+  <xsl:template match="b:Source" mode="citation-entry">
+    <xsl:if test="position() &gt; 1">
+      <xsl:text>; </xsl:text>
+    </xsl:if>
+    <xsl:call-template name="render-citation-author-short"/>
+    <xsl:text>, </xsl:text>
+    <xsl:call-template name="render-year-short"/>
   </xsl:template>
 
   <!-- ==================== TYPE RENDERERS ==================== -->
